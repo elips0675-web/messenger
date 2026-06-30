@@ -1,0 +1,31 @@
+import { Router } from 'express';
+import pool from '../db.js';
+
+const router = Router();
+
+router.get('/', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM gantt_state WHERE user_id = ?', [req.userId]);
+    if (rows.length) {
+      const state = typeof rows[0].state === 'string' ? JSON.parse(rows[0].state) : rows[0].state;
+      return res.json(state);
+    }
+    res.json([]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/', async (req, res) => {
+  try {
+    await pool.query(
+      'INSERT INTO gantt_state (user_id, state) VALUES (?,?) ON DUPLICATE KEY UPDATE state = ?',
+      [req.userId, JSON.stringify(req.body), JSON.stringify(req.body)]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default router;
