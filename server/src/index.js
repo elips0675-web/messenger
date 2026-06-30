@@ -29,6 +29,7 @@ import searchRoutes from './routes/search.js';
 import corpRoutes from './routes/corporate.js';
 import pushRoutes from './routes/push.js';
 import adminRoutes from './routes/admin/index.js';
+import feedRoutes from './routes/feed.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -59,7 +60,7 @@ app.use('/api/auth', authRoutes);
 
 app.use(['/api/push', '/api/chats', '/api/tasks', '/api/projects', '/api/files',
   '/api/notifications', '/api/calendar', '/api/channels', '/api/kanban',
-  '/api/gantt', '/api/timeline', '/api/mindmap', '/api/search', '/api/corporate'], auth);
+  '/api/gantt', '/api/timeline', '/api/mindmap', '/api/search', '/api/corporate', '/api/feed'], auth);
 
 app.use('/api', pushRoutes);
 app.use('/api/chats', chatRoutes);
@@ -75,6 +76,7 @@ app.use('/api/timeline', timelineRoutes);
 app.use('/api/mindmap', mindmapRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/corporate', corpRoutes);
+app.use('/api/feed', feedRoutes);
 
 app.use('/api/admin', adminAuth, adminRoutes);
 

@@ -12,6 +12,7 @@ export default function Layout({ children, title, onBack, showBack }) {
   const activeTasks = tasks.filter(t => t.status !== 'done').length;
 
   const nav = [
+    { path: '/feed', icon: '📰', label: 'Новости' },
     { path: '/chats', icon: icons.chats, label: 'Чаты', badge: totalUnread || null },
     { path: '/files', icon: icons.files, label: 'Файлы' },
     { path: '/projects', icon: icons.projects, label: 'Проекты' },

@@ -26,6 +26,7 @@ import AuditLogPage from './pages/AuditLogPage';
 import DataRetentionPage from './pages/DataRetentionPage';
 import SearchPage from './pages/SearchPage';
 import BotsPage from './pages/BotsPage';
+import Feed from './pages/Feed';
 import { ThemeProvider } from './lib/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
@@ -63,6 +64,7 @@ export default function App() {
         <Route path="/retention" element={<DataRetentionPage />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/feed" element={<Feed />} />
         <Route path="/bots" element={<BotsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
