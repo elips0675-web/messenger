@@ -4,7 +4,7 @@ import { api } from '../lib/api';
 import { users } from '../data/mockData';
 
 function loadData() {
-  try { return JSON.parse(localStorage.getItem('kanban_data')); } catch {}
+  try { const d = JSON.parse(localStorage.getItem('kanban_data')); if (d && d.columns && d.tasks) return d; } catch {}
   return {
     columns: [
       { id: 'todo', label: 'К выполнению', color: '#f3f4f6' },

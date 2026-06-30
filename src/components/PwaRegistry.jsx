@@ -3,8 +3,9 @@ import { useEffect } from 'react';
 export function PwaRegistry() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
+      const base = import.meta.env.BASE_URL || '/';
       navigator.serviceWorker
-        .register('/sw.js')
+        .register(`${base}sw.js`)
         .catch((error) => console.error('Service Worker registration failed:', error));
     }
   }, []);

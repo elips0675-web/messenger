@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
 
     const token = generateToken(user);
     const refresh_token = generateRefreshToken(user);
-    res.json({ token, refresh_token, user: { id: user.id, name: user.name, email: user.email, role: user.role || 'user', avatar: user.avatar, title: user.title, phone: user.phone, dept_id: user.dept_id } });
+    res.json({ token, refresh_token, user: { id: user.id, name: user.name, email: user.email, role: user.role || 'user', title: user.title || user.role, avatar: user.avatar, phone: user.phone, dept_id: user.dept_id } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

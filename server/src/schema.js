@@ -9,6 +9,7 @@ const ALTERS = `
   ALTER TABLE tasks ADD INDEX idx_task_dept (dept_id);
   ALTER TABLE notifications ADD COLUMN type ENUM('task','mention','deadline','event','system') DEFAULT 'system' AFTER text;
   ALTER TABLE notifications ADD COLUMN readed BOOLEAN DEFAULT FALSE AFTER type;
+  ALTER TABLE users ADD COLUMN title VARCHAR(100) AFTER role;
 `;
 
 const SCHEMA = `
@@ -24,6 +25,7 @@ const SCHEMA = `
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50),
+    title VARCHAR(100),
     avatar VARCHAR(10),
     phone VARCHAR(20),
     dept_id INT,

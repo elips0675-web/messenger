@@ -13,17 +13,17 @@ async function seed() {
   // Users
   const hash = await bcrypt.hash('password123', 10);
   const users = [
-    ['Алексей Волков', 'ceo@company.ru', hash, 'CEO', 'AV', '+7 (999) 111-22-33', 1],
-    ['Дмитрий Козлов', 'it@company.ru', hash, 'IT Director', 'DK', '+7 (999) 222-33-44', 2],
-    ['Иван Петров', 'dev1@company.ru', hash, 'Senior Dev', 'IP', '+7 (999) 333-44-55', 2],
-    ['Елена Соколова', 'buh@company.ru', hash, 'Head Acc.', 'ES', '+7 (999) 444-55-66', 3],
-    ['Анна Белова', 'hr@company.ru', hash, 'HR Manager', 'AB', '+7 (999) 555-66-77', 4],
-    ['Мария Смирнова', 'dev2@company.ru', hash, 'Junior Dev', 'MS', '+7 (999) 666-77-88', 2],
+    ['Алексей Волков', 'ceo@company.ru', hash, 'admin', 'CEO', 'AV', '+7 (999) 111-22-33', 1],
+    ['Дмитрий Козлов', 'it@company.ru', hash, 'manager', 'IT Director', 'DK', '+7 (999) 222-33-44', 2],
+    ['Иван Петров', 'dev1@company.ru', hash, 'user', 'Senior Dev', 'IP', '+7 (999) 333-44-55', 2],
+    ['Елена Соколова', 'buh@company.ru', hash, 'manager', 'Head Acc.', 'ES', '+7 (999) 444-55-66', 3],
+    ['Анна Белова', 'hr@company.ru', hash, 'manager', 'HR Manager', 'AB', '+7 (999) 555-66-77', 4],
+    ['Мария Смирнова', 'dev2@company.ru', hash, 'user', 'Junior Dev', 'MS', '+7 (999) 666-77-88', 2],
   ];
   for (const u of users) {
     await pool.query(
-      `INSERT INTO users (name, email, password, role, avatar, phone, dept_id)
-       VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE name=VALUES(name)`,
+      `INSERT INTO users (name, email, password, role, title, avatar, phone, dept_id)
+       VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE name=VALUES(name)`,
       u
     );
   }

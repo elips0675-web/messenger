@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { api } from '../lib/api';
+import { useToast } from '../components/Toast';
 
 export default function Login() {
   const navigate = useNavigate();
+  const addToast = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,18 +16,30 @@ export default function Login() {
     if (localStorage.getItem('messenger_token')) navigate('/chats', { replace: true });
   }, []);
 
+  const validate = () => {
+    if (!email.trim()) { setError('Введите email'); return false; }
+    if (!password) { setError('Введите пароль'); return false; }
+    if (!email.includes('@')) { setError('Некорректный email'); return false; }
+    if (password.length < 6) { setError('Пароль должен быть минимум 6 символов'); return false; }
+    return true;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!email || !password) return;
-    setLoading(true); setError('');
+    setError('');
+    if (!validate()) return;
+    setLoading(true);
     try {
-      const data = await api.post('/auth/login', { email, password });
+      const data = await api.post('/auth/login', { email: email.trim(), password });
       localStorage.setItem('messenger_token', data.token);
       localStorage.setItem('messenger_refresh', data.refresh_token);
       localStorage.setItem('user', JSON.stringify(data.user));
+      addToast(`Добро пожаловать, ${data.user.name}!`, 'success');
       navigate('/chats', { replace: true });
     } catch (err) {
-      setError(err.message || 'Ошибка входа');
+      const msg = err.message || 'Ошибка входа';
+      setError(msg);
+      addToast(msg, 'error');
     } finally { setLoading(false); }
   };
 
@@ -37,8 +51,9 @@ export default function Login() {
       localStorage.setItem('messenger_token', data.token);
       localStorage.setItem('messenger_refresh', data.refresh_token);
       localStorage.setItem('user', JSON.stringify(data.user));
+      addToast(`Быстрый вход: ${data.user.name}`, 'success');
       navigate('/chats', { replace: true });
-    } catch (err) { setError(err.message); }
+    } catch (err) { setError(err.message); addToast(err.message, 'error'); }
   };
 
   return (

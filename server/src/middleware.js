@@ -1,7 +1,11 @@
 import jwt from 'jsonwebtoken';
 import pool from './db.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'corp-messenger-secret-key-2026';
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET not set in environment. Create server/.env with JWT_SECRET=your-secret');
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export function generateToken(user) {
   return jwt.sign({ userId: user.id, email: user.email, role: user.role || 'user' }, JWT_SECRET, { expiresIn: '24h' });

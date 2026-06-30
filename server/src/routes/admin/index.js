@@ -7,7 +7,7 @@ const router = Router();
 
 router.get('/me', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT id, name, email, role, avatar, phone FROM users WHERE id = ?', [req.admin.id]);
+    const [rows] = await pool.query('SELECT id, name, email, role, title, avatar, phone FROM users WHERE id = ?', [req.admin.id]);
     if (!rows.length) return res.status(404).json({ message: 'User not found' });
     res.json(rows[0]);
   } catch (err) {
@@ -19,7 +19,7 @@ router.get('/me', async (req, res) => {
 router.get('/users', async (req, res) => {
   try {
     const [users] = await pool.query(
-      'SELECT u.id, u.name, u.email, u.role, u.avatar, u.phone, u.dept_id, u.is_active, d.name as dept_name FROM users u LEFT JOIN departments d ON u.dept_id = d.id ORDER BY u.name'
+      'SELECT u.id, u.name, u.email, u.role, u.title, u.avatar, u.phone, u.dept_id, u.is_active, d.name as dept_name FROM users u LEFT JOIN departments d ON u.dept_id = d.id ORDER BY u.name'
     );
     res.json(users);
   } catch (err) {
@@ -29,12 +29,12 @@ router.get('/users', async (req, res) => {
 
 router.post('/users', async (req, res) => {
   try {
-    const { name, email, password, role, phone, dept_id } = req.body;
+    const { name, email, password, role, title, phone, dept_id } = req.body;
     const hash = await bcrypt.hash(password || 'password123', 10);
     const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     const [result] = await pool.query(
-      'INSERT INTO users (name, email, password, role, avatar, phone, dept_id, is_active) VALUES (?,?,?,?,?,?,?,1)',
-      [name, email, hash, role || 'user', initials, phone || '', dept_id || null]
+      'INSERT INTO users (name, email, password, role, title, avatar, phone, dept_id, is_active) VALUES (?,?,?,?,?,?,?,?,1)',
+      [name, email, hash, role || 'user', title || 'Сотрудник', initials, phone || '', dept_id || null]
     );
     const [[user]] = await pool.query('SELECT id, name, email, role FROM users WHERE id = ?', [result.insertId]);
     res.status(201).json(user);
@@ -45,7 +45,7 @@ router.post('/users', async (req, res) => {
 
 router.put('/users/:id', async (req, res) => {
   try {
-    const fields = ['name', 'email', 'role', 'phone', 'dept_id', 'is_active'];
+    const fields = ['name', 'email', 'role', 'title', 'phone', 'dept_id', 'is_active'];
     const sets = fields.filter(f => req.body[f] !== undefined).map(f => `${f} = ?`);
     const vals = fields.filter(f => req.body[f] !== undefined).map(f => req.body[f]);
     if (req.body.password) {

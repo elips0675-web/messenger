@@ -27,11 +27,15 @@ import DataRetentionPage from './pages/DataRetentionPage';
 import SearchPage from './pages/SearchPage';
 import BotsPage from './pages/BotsPage';
 import { ThemeProvider } from './lib/ThemeContext';
+import ErrorBoundary from './components/ErrorBoundary';
+import { ToastProvider } from './components/Toast';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ThemeProvider>
+      <ToastProvider>
+      <ErrorBoundary>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -62,6 +66,8 @@ export default function App() {
         <Route path="/bots" element={<BotsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </ErrorBoundary>
+      </ToastProvider>
       </ThemeProvider>
     </BrowserRouter>
   );
