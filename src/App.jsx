@@ -1,35 +1,50 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Chats from './pages/Chats';
-import Chat from './pages/Chat';
-import Tasks from './pages/Tasks';
-import TaskDetail from './pages/TaskDetail';
-import Kanban from './pages/Kanban';
-import Timeline from './pages/Timeline';
-import MyPlan from './pages/MyPlan';
-import Files from './pages/Files';
-import Projects from './pages/Projects';
-import ProjectDetail from './pages/ProjectDetail';
-import Gantt from './pages/Gantt';
-import Admin from './pages/Admin';
-import Directory from './pages/Directory';
-import NotificationsPage from './pages/Notifications';
-import Profile from './pages/Profile';
-import Board from './pages/Board';
-import MindMap from './pages/MindMap';
-import TwoFactorSetup from './pages/TwoFactorSetup';
-import ChannelsPage from './pages/ChannelsPage';
-import CalendarPage from './pages/CalendarPage';
-import WebhooksPage from './pages/WebhooksPage';
-import AuditLogPage from './pages/AuditLogPage';
-import DataRetentionPage from './pages/DataRetentionPage';
-import SearchPage from './pages/SearchPage';
-import BotsPage from './pages/BotsPage';
-import Feed from './pages/Feed';
 import { ThemeProvider } from './lib/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
+
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Chats = lazy(() => import('./pages/Chats'));
+const Chat = lazy(() => import('./pages/Chat'));
+const Tasks = lazy(() => import('./pages/Tasks'));
+const TaskDetail = lazy(() => import('./pages/TaskDetail'));
+const Kanban = lazy(() => import('./pages/Kanban'));
+const Timeline = lazy(() => import('./pages/Timeline'));
+const MyPlan = lazy(() => import('./pages/MyPlan'));
+const Files = lazy(() => import('./pages/Files'));
+const Projects = lazy(() => import('./pages/Projects'));
+const ProjectDetail = lazy(() => import('./pages/ProjectDetail'));
+const Gantt = lazy(() => import('./pages/Gantt'));
+const Admin = lazy(() => import('./pages/Admin'));
+const Directory = lazy(() => import('./pages/Directory'));
+const NotificationsPage = lazy(() => import('./pages/Notifications'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Board = lazy(() => import('./pages/Board'));
+const MindMap = lazy(() => import('./pages/MindMap'));
+const TwoFactorSetup = lazy(() => import('./pages/TwoFactorSetup'));
+const ChannelsPage = lazy(() => import('./pages/ChannelsPage'));
+const CalendarPage = lazy(() => import('./pages/CalendarPage'));
+const WebhooksPage = lazy(() => import('./pages/WebhooksPage'));
+const AuditLogPage = lazy(() => import('./pages/AuditLogPage'));
+const DataRetentionPage = lazy(() => import('./pages/DataRetentionPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
+const BotsPage = lazy(() => import('./pages/BotsPage'));
+const Feed = lazy(() => import('./pages/Feed'));
+const Wiki = lazy(() => import('./pages/Wiki'));
+const OrgChart = lazy(() => import('./pages/OrgChart'));
+const Workflows = lazy(() => import('./pages/Workflows'));
+const WorkflowBuilder = lazy(() => import('./pages/WorkflowBuilder'));
+const RequestDetail = lazy(() => import('./pages/RequestDetail'));
+const Courses = lazy(() => import('./pages/Courses'));
+const CourseDetail = lazy(() => import('./pages/CourseDetail'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const Polls = lazy(() => import('./pages/Polls'));
+
+function Loading() {
+  return <div style={{ padding: 40, textAlign: 'center', color: 'var(--text2)' }}>Загрузка...</div>;
+}
 
 export default function App() {
   return (
@@ -37,6 +52,7 @@ export default function App() {
       <ThemeProvider>
       <ToastProvider>
       <ErrorBoundary>
+      <Suspense fallback={<Loading />}>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -65,9 +81,19 @@ export default function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/feed" element={<Feed />} />
+        <Route path="/wiki" element={<Wiki />} />
+        <Route path="/orgchart" element={<OrgChart />} />
+        <Route path="/workflows" element={<Workflows />} />
+        <Route path="/workflows/:id" element={<WorkflowBuilder />} />
+        <Route path="/workflows/requests/:id" element={<RequestDetail />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/courses/:id" element={<CourseDetail />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/polls" element={<Polls />} />
         <Route path="/bots" element={<BotsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
       </ErrorBoundary>
       </ToastProvider>
       </ThemeProvider>

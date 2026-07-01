@@ -12,7 +12,11 @@ export default function Layout({ children, title, onBack, showBack }) {
   const activeTasks = tasks.filter(t => t.status !== 'done').length;
 
   const nav = [
+    { path: '/courses', icon: '🎓', label: 'Обучение' },
+    { path: '/workflows', icon: '✅', label: 'Согласования' },
+    { path: '/polls', icon: '📊', label: 'Опросы' },
     { path: '/feed', icon: '📰', label: 'Новости' },
+    { path: '/wiki', icon: '📚', label: 'База знаний' },
     { path: '/chats', icon: icons.chats, label: 'Чаты', badge: totalUnread || null },
     { path: '/files', icon: icons.files, label: 'Файлы' },
     { path: '/projects', icon: icons.projects, label: 'Проекты' },
@@ -23,6 +27,7 @@ export default function Layout({ children, title, onBack, showBack }) {
     { path: '/board', icon: icons.board, label: 'Доска' },
     { path: '/mindmap', icon: icons.mindmap, label: 'Mind Map' },
     { path: '/timeline', icon: icons.timeline, label: 'Сроки' },
+    { path: '/orgchart', icon: '🏛️', label: 'Оргструктура' },
     { path: '/directory', icon: icons.directory, label: 'Сотрудники' },
     { path: '/calendar', icon: icons.timeline, label: 'Календарь' },
     { path: '/channels', icon: icons.hash, label: 'Каналы' },
@@ -32,6 +37,7 @@ export default function Layout({ children, title, onBack, showBack }) {
     { path: '/search', icon: icons.search || '🔍', label: 'Поиск' },
     { path: '/bots', icon: icons.bot || '🤖', label: 'Боты' },
     { path: '/webhooks', icon: icons.webhook || icons.chats, label: 'Вебхуки' },
+    { path: '/faq', icon: '❓', label: 'FAQ' },
     { path: '/admin', icon: icons.admin, label: 'Администрирование' },
     { path: '/profile', icon: icons.profile, label: 'Профиль' },
   ];

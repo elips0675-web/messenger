@@ -1,22 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { api } from '../lib/api';
+import useFetch from '../lib/useFetch';
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const [tasks, setTasks] = useState([]);
+  const { data: tasks, loading, setData: setTasks } = useFetch('/tasks');
   const [filter, setFilter] = useState('all');
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ title: '', desc: '', priority: 'medium', assignee: 1, deadline: '' });
 
-  useEffect(() => {
-    api.get('/tasks').then(setTasks).catch(() => {
-      try { const d = JSON.parse(localStorage.getItem('tasks_data') || '[]'); setTasks(d); } catch { setTasks([]); }
-    });
-  }, []);
-
-  const filtered = filter === 'all' ? tasks : tasks.filter(t => t.status === filter);
+  const filtered = filter === 'all' ? (tasks || []) : (tasks || []).filter(t => t.status === filter);
 
   const addTask = async () => {
     if (!form.title.trim()) return;
@@ -26,7 +21,7 @@ export default function Tasks() {
     } catch {
       const task = { id: Date.now(), ...form, status: 'todo', subtasks: [], created_at: new Date().toISOString() };
       setTasks(prev => [task, ...prev]);
-      localStorage.setItem('tasks_data', JSON.stringify([task, ...tasks]));
+      localStorage.setItem('tasks_data', JSON.stringify([task, ...(tasks || [])]));
     }
     setForm({ title: '', desc: '', priority: 'medium', assignee: 1, deadline: '' });
     setShowAdd(false);
@@ -47,7 +42,7 @@ export default function Tasks() {
       <div className="tabs" style={{ flexWrap: 'wrap', marginBottom: 16 }}>
         {[{ key: 'all', label: 'Все' }, { key: 'todo', label: 'К выполнению' }, { key: 'progress', label: 'В работе' }, { key: 'done', label: 'Готово' }].map(t => (
           <div key={t.key} className={`tab ${filter === t.key ? 'active' : ''}`} onClick={() => setFilter(t.key)}>
-            {t.label} ({filter === 'all' ? tasks.length : tasks.filter(ts => ts.status === t.key).length})
+            {t.label} ({filter === 'all' ? (tasks || []).length : (tasks || []).filter(ts => ts.status === t.key).length})
           </div>
         ))}
         <button className="btn-primary" style={{ width: 'auto', padding: '6px 16px', marginLeft: 'auto', marginTop: 0 }} onClick={() => setShowAdd(true)}>➕ Задачу</button>

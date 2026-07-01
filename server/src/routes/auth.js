@@ -22,7 +22,7 @@ router.post('/login', async (req, res) => {
     // Check 2FA
     if (user.totp_enabled) {
       if (!totpCode) {
-        return res.json({ require2fa: true, tempToken: jwt.sign({ id: user.id, step: '2fa' }, SECRET, { expiresIn: '5m' }) });
+        return res.json({ require2fa: true, tempToken: jwt.sign({ id: user.id, step: '2fa' }, JWT_SECRET, { expiresIn: '5m' }) });
       }
       const verified = speakeasy.totp.verify({ secret: user.totp_secret, encoding: 'base32', token: totpCode, window: 1 });
       if (!verified) return res.status(401).json({ error: 'Неверный код' });
@@ -68,10 +68,10 @@ router.get('/me', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'No token' });
   try {
-    const decoded = jwt.verify(authHeader.split(' ')[1], SECRET);
+    const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
     const [rows] = await pool.query(
       'SELECT u.*, d.name as dept_name FROM users u LEFT JOIN departments d ON u.dept_id = d.id WHERE u.id = ?',
-      [decoded.id],
+      [decoded.userId || decoded.id],
     );
     if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
     const { password, totp_secret, ...u } = rows[0];
@@ -112,7 +112,7 @@ router.post('/refresh', async (req, res) => {
 function getUserId(req) {
   const auth = req.headers.authorization;
   if (!auth) return null;
-  try { return jwt.verify(auth.split(' ')[1], SECRET).id; } catch { return null; }
+  try { const d = jwt.verify(auth.split(' ')[1], JWT_SECRET); return d.userId || d.id; } catch { return null; }
 }
 
 router.post('/2fa/setup', async (req, res) => {

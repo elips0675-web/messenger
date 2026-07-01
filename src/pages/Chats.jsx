@@ -1,25 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { api } from '../lib/api';
+import Loading from '../components/Loading';
+import useFetch from '../lib/useFetch';
 
 export default function Chats() {
   const navigate = useNavigate();
-  const [chatList, setChatList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: chats, loading, setData: setChats } = useFetch('/chats');
 
-  useEffect(() => {
-    api.get('/chats').then(data => { setChatList(data); setLoading(false); }).catch(() => {
-      try {
-        const saved = JSON.parse(localStorage.getItem('chats_data'));
-        if (saved?.length) { setChatList(saved); setLoading(false); return; }
-      } catch {}
-      import('../data/mockData').then(m => { setChatList(m.chats); setLoading(false); });
-    });
-  }, []);
-
-  const rooms = chatList.filter(c => c.type === 'group' || c.type === 'channel');
-  const personal = chatList.filter(c => c.type === 'personal');
+  const rooms = (chats || []).filter(c => c.type === 'group' || c.type === 'channel');
+  const personal = (chats || []).filter(c => c.type === 'personal');
 
   const sortByTime = (a, b) => {
     const tA = a.lastTime || a.last_time || '';
@@ -43,7 +33,7 @@ export default function Chats() {
 
   return (
     <Layout title="Чаты">
-      {loading ? <div style={{ padding: 40, textAlign: 'center', color: 'var(--text2)' }}>Загрузка...</div> : (
+      {loading ? <Loading /> : (
         <div className="chat-list" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {rooms.length > 0 && (
             <>

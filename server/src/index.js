@@ -30,6 +30,10 @@ import corpRoutes from './routes/corporate.js';
 import pushRoutes from './routes/push.js';
 import adminRoutes from './routes/admin/index.js';
 import feedRoutes from './routes/feed.js';
+import wikiRoutes from './routes/wiki.js';
+import workflowRoutes from './routes/workflows.js';
+import courseRoutes from './routes/courses.js';
+import pollRoutes from './routes/polls.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -60,7 +64,8 @@ app.use('/api/auth', authRoutes);
 
 app.use(['/api/push', '/api/chats', '/api/tasks', '/api/projects', '/api/files',
   '/api/notifications', '/api/calendar', '/api/channels', '/api/kanban',
-  '/api/gantt', '/api/timeline', '/api/mindmap', '/api/search', '/api/corporate', '/api/feed'], auth);
+  '/api/gantt', '/api/timeline', '/api/mindmap', '/api/search', '/api/corporate',
+  '/api/feed', '/api/wiki', '/api/workflows', '/api/courses', '/api/polls'], auth);
 
 app.use('/api', pushRoutes);
 app.use('/api/chats', chatRoutes);
@@ -77,6 +82,10 @@ app.use('/api/mindmap', mindmapRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/corporate', corpRoutes);
 app.use('/api/feed', feedRoutes);
+app.use('/api/wiki', wikiRoutes);
+app.use('/api/workflows', workflowRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/polls', pollRoutes);
 
 app.use('/api/admin', adminAuth, adminRoutes);
 

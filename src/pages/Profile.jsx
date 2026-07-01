@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { api } from '../lib/api';
 import { departments as mockDepts } from '../data/mockData';
+import Loading from '../components/Loading';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -132,7 +133,7 @@ export default function Profile() {
 
   const isImg = (type) => type?.startsWith('image/');
 
-  if (!userData) return <Layout title="Профиль"><div style={{ padding: 40, textAlign: 'center', color: 'var(--text2)' }}>Загрузка...</div></Layout>;
+  if (!userData) return <Layout title="Профиль"><Loading /></Layout>;
 
   return (
     <Layout title="Профиль">

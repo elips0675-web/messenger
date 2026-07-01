@@ -1,6 +1,4 @@
-function getToken() {
-  try { return localStorage.getItem('messenger_token'); } catch { return null; }
-}
+import { getToken } from './helpers';
 
 function getSalt() {
   const existing = sessionStorage.getItem('messenger_salt');

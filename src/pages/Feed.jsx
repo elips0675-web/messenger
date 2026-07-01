@@ -1,25 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Layout from '../components/Layout';
 import { api } from '../lib/api';
 import { useToast } from '../components/Toast';
+import Loading from '../components/Loading';
+import EmptyState from '../components/EmptyState';
+import useFetch from '../lib/useFetch';
 
 export default function Feed() {
   const addToast = useToast();
-  const [posts, setPosts] = useState([]);
+  const { data: posts, loading, setData: setPosts } = useFetch('/feed', { fallback: 'feed_posts' });
   const [text, setText] = useState('');
-  const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [comments, setComments] = useState({});
   const [commentText, setCommentText] = useState({});
   const [showComments, setShowComments] = useState({});
   const me = JSON.parse(localStorage.getItem('user') || '{}');
-
-  useEffect(() => {
-    api.get('/feed').then(data => { setPosts(data); setLoading(false); }).catch(() => {
-      try { const d = JSON.parse(localStorage.getItem('feed_posts')); if (d) setPosts(d); } catch {}
-      setLoading(false);
-    });
-  }, []);
 
   const createPost = async () => {
     if (!text.trim()) return;
@@ -101,8 +96,8 @@ export default function Feed() {
         </div>
       </div>
 
-      {loading ? <div style={{ padding: 40, textAlign: 'center', color: 'var(--text2)' }}>Загрузка...</div> : posts.length === 0 ? (
-        <div className="empty-state"><div className="empty-icon">📰</div><p>Новостей пока нет. Напишите первый пост!</p></div>
+      {loading ? <Loading /> : posts.length === 0 ? (
+        <EmptyState icon="📰" message="Новостей пока нет. Напишите первый пост!" />
       ) : posts.map(post => (
         <div key={post.id} className="post-card" style={{ border: '1px solid var(--border)', borderRadius: 12, padding: 16, marginBottom: 12, background: 'var(--surface)' }}>
           <div className="post-header" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { api } from '../lib/api';
+import Loading from '../components/Loading';
 
 function loadTasks() {
   return [
@@ -103,7 +104,7 @@ export default function Gantt() {
     document.addEventListener('mouseup', onUp);
   };
 
-  if (!tasks.length) return <Layout title="Диаграмма Ганта"><div style={{ padding: 40, textAlign: 'center', color: 'var(--text2)' }}>Загрузка...</div></Layout>;
+  if (!tasks.length) return <Layout title="Диаграмма Ганта"><Loading /></Layout>;
 
   return (
     <Layout title="Диаграмма Ганта">

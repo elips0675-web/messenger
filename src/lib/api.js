@@ -1,11 +1,9 @@
-function getToken() {
-  return localStorage.getItem('messenger_token');
-}
+import { getToken, getRefreshToken } from './helpers';
 
 let pendingRefresh = null;
 
 async function tryRefresh() {
-  const refresh = localStorage.getItem('messenger_refresh');
+  const refresh = getRefreshToken();
   if (!refresh) throw new Error('No refresh token');
   const res = await fetch('/api/auth/refresh', {
     method: 'POST',
