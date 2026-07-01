@@ -1,11 +1,13 @@
 import { getToken, getRefreshToken } from './helpers';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 let pendingRefresh = null;
 
 async function tryRefresh() {
   const refresh = getRefreshToken();
   if (!refresh) throw new Error('No refresh token');
-  const res = await fetch('/api/auth/refresh', {
+  const res = await fetch(`${API_URL}/api/auth/refresh`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refresh_token: refresh }),
@@ -23,7 +25,7 @@ async function tryRefresh() {
 
 class ApiClient {
   constructor() {
-    this.baseUrl = '/api';
+    this.baseUrl = API_URL ? `${API_URL}/api` : '/api';
     this.defaultTimeout = 10000;
     this.maxRetries = 3;
   }

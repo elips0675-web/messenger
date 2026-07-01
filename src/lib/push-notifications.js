@@ -1,5 +1,7 @@
 import { getToken } from './helpers';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -23,7 +25,7 @@ export async function subscribeToPush() {
   if (!permission) return false;
 
   try {
-    const vapidRes = await fetch('/api/push/vapid-public-key');
+    const vapidRes = await fetch(`${API_URL}/api/push/vapid-public-key`);
     if (!vapidRes.ok) { console.log('VAPID server error:', vapidRes.status); return false; }
     const { publicKey } = await vapidRes.json();
     if (!publicKey) {
@@ -39,7 +41,7 @@ export async function subscribeToPush() {
 
     const subJSON = subscription.toJSON();
     const token = getToken();
-    const res = await fetch('/api/push/subscribe', {
+    const res = await fetch(`${API_URL}/api/push/subscribe`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({
@@ -68,7 +70,7 @@ export async function unsubscribeFromPush() {
     if (subscription) {
       const token = getToken();
       const subJSON = subscription.toJSON();
-      await fetch('/api/push/subscribe', {
+      await fetch(`${API_URL}/api/push/subscribe`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ endpoint: subJSON.endpoint }),

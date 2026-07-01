@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '', dept_id: '', title: '' });
@@ -9,7 +11,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/auth/departments')
+    fetch(`${API_URL}/api/auth/departments`)
       .then(r => r.json())
       .then(setDepartments)
       .catch(() => {});
@@ -20,7 +22,7 @@ export default function Register() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
