@@ -1,11 +1,10 @@
 import { Router } from 'express';
 const router = Router();
 import pool from '../db.js';
-import { auth } from '../middleware.js';
+import { auth, asyncHandler } from '../middleware.js';
 
 // List courses
-router.get('/', auth, async (req, res) => {
-  try {
+router.get('/', auth, asyncHandler(async (req, res) => {
     const [rows] = await pool.query(
       `SELECT c.*,
         (SELECT COUNT(*) FROM course_lessons WHERE course_id = c.id) lessons_count,
@@ -17,12 +16,10 @@ router.get('/', auth, async (req, res) => {
       [req.user.id]
     );
     res.json(rows);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Create course
-router.post('/', auth, async (req, res) => {
-  try {
+router.post('/', auth, asyncHandler(async (req, res) => {
     const { title, description, cover } = req.body;
     if (!title) return res.status(400).json({ error: 'Title required' });
     const [r] = await pool.query(
@@ -31,21 +28,17 @@ router.post('/', auth, async (req, res) => {
     );
     const [rows] = await pool.query(`SELECT * FROM courses WHERE id = ?`, [r.insertId]);
     res.status(201).json(rows[0]);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Get course detail
-router.get('/:id', auth, async (req, res) => {
-  try {
+router.get('/:id', auth, asyncHandler(async (req, res) => {
     const [c] = await pool.query(`SELECT * FROM courses WHERE id = ?`, [req.params.id]);
     if (!c.length) return res.status(404).json({ error: 'Not found' });
     res.json(c[0]);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Enroll
-router.post('/:id/enroll', auth, async (req, res) => {
-  try {
+router.post('/:id/enroll', auth, asyncHandler(async (req, res) => {
     const [existing] = await pool.query(
       `SELECT id FROM course_progress WHERE course_id = ? AND user_id = ?`,
       [req.params.id, req.user.id]
@@ -61,22 +54,18 @@ router.post('/:id/enroll', auth, async (req, res) => {
     );
     const [rows] = await pool.query(`SELECT * FROM course_progress WHERE id = ?`, [r.insertId]);
     res.status(201).json(rows[0]);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Lessons
-router.get('/:id/lessons', auth, async (req, res) => {
-  try {
+router.get('/:id/lessons', auth, asyncHandler(async (req, res) => {
     const [rows] = await pool.query(
       `SELECT * FROM course_lessons WHERE course_id = ? ORDER BY order_index`, [req.params.id]
     );
     res.json(rows);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Add lesson
-router.post('/:id/lessons', auth, async (req, res) => {
-  try {
+router.post('/:id/lessons', auth, asyncHandler(async (req, res) => {
     const { title, content } = req.body;
     if (!title) return res.status(400).json({ error: 'Title required' });
     const [max] = await pool.query(
@@ -93,12 +82,10 @@ router.post('/:id/lessons', auth, async (req, res) => {
     );
     const [rows] = await pool.query(`SELECT * FROM course_lessons WHERE id = ?`, [r.insertId]);
     res.status(201).json(rows[0]);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Mark lesson completed
-router.post('/:courseId/lessons/:id/complete', auth, async (req, res) => {
-  try {
+router.post('/:courseId/lessons/:id/complete', auth, asyncHandler(async (req, res) => {
     const [progress] = await pool.query(
       `SELECT * FROM course_progress WHERE course_id = ? AND user_id = ?`,
       [req.params.courseId, req.user.id]
@@ -113,12 +100,10 @@ router.post('/:courseId/lessons/:id/complete', auth, async (req, res) => {
     );
     const [rows] = await pool.query(`SELECT * FROM course_progress WHERE id = ?`, [progress[0].id]);
     res.json(rows[0]);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Quiz
-router.get('/:id/quiz', auth, async (req, res) => {
-  try {
+router.get('/:id/quiz', auth, asyncHandler(async (req, res) => {
     const [questions] = await pool.query(
       `SELECT qq.*, qa.answer_index user_answer, qa.correct user_correct
        FROM quiz_questions qq
@@ -132,12 +117,10 @@ router.get('/:id/quiz', auth, async (req, res) => {
       correct_index: q.user_answer != null ? q.correct_index : undefined,
     }));
     res.json(safe);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Add quiz question
-router.post('/:id/quiz', auth, async (req, res) => {
-  try {
+router.post('/:id/quiz', auth, asyncHandler(async (req, res) => {
     const { question, options, correct_index } = req.body;
     if (!question || !options) return res.status(400).json({ error: 'Question and options required' });
     const [r] = await pool.query(
@@ -146,12 +129,10 @@ router.post('/:id/quiz', auth, async (req, res) => {
     );
     const [rows] = await pool.query(`SELECT * FROM quiz_questions WHERE id = ?`, [r.insertId]);
     res.status(201).json(rows[0]);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Answer quiz question
-router.post('/:courseId/quiz/answer', auth, async (req, res) => {
-  try {
+router.post('/:courseId/quiz/answer', auth, asyncHandler(async (req, res) => {
     const { question_id, answer_index } = req.body;
     if (!question_id || answer_index == null) return res.status(400).json({ error: 'question_id and answer_index required' });
 
@@ -185,18 +166,15 @@ router.post('/:courseId/quiz/answer', auth, async (req, res) => {
     }
 
     res.json({ correct, correct_index: q[0].correct_index });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Progress
-router.get('/:id/progress', auth, async (req, res) => {
-  try {
+router.get('/:id/progress', auth, asyncHandler(async (req, res) => {
     const [rows] = await pool.query(
       `SELECT * FROM course_progress WHERE course_id = ? AND user_id = ?`,
       [req.params.id, req.user.id]
     );
     res.json(rows[0] || { completed_lessons: 0, total_lessons: 0, quiz_score: 0, completed: false });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 export default router;

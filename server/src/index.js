@@ -8,7 +8,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { auth, adminAuth, JWT_SECRET } from './middleware.js';
+import { auth, adminAuth, JWT_SECRET, asyncHandler } from './middleware.js';
 import { createLogger, rootLogger } from './logger.js';
 import pool from './db.js';
 import { initIO } from './ws.js';

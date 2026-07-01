@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import pool from './db.js';
+import { rootLogger } from './logger.js';
 
 if (!process.env.JWT_SECRET) {
   console.error('FATAL: JWT_SECRET not set in environment. Create server/.env with JWT_SECRET=your-secret');
@@ -62,6 +63,16 @@ export async function adminAuth(req, res, next) {
   } catch {
     return res.status(401).json({ message: 'Invalid token' });
   }
+}
+
+export function asyncHandler(fn) {
+  return (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}
+
+export function notFound(req, res) {
+  res.status(404).json({ error: 'Not found' });
 }
 
 export { JWT_SECRET };

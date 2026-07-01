@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import webpush from 'web-push';
 import pool from '../db.js';
-import { auth } from '../middleware.js';
+import { auth, asyncHandler } from '../middleware.js';
 
 const router = Router();
 
@@ -16,38 +16,28 @@ router.get('/api/push/vapid-public-key', (req, res) => {
   res.json({ publicKey: vapidPublic || '' });
 });
 
-router.post('/api/push/subscribe', auth, async (req, res) => {
+router.post('/api/push/subscribe', auth, asyncHandler(async (req, res) => {
   const { endpoint, p256dh, auth: authKey } = req.body;
   if (!endpoint || !p256dh || !authKey) {
     return res.status(400).json({ message: 'endpoint, p256dh, and auth are required' });
   }
-  try {
-    await pool.query(
-      `INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth)
-       VALUES (?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE p256dh = VALUES(p256dh), auth = VALUES(auth)`,
-      [req.userId, endpoint, p256dh, authKey],
-    );
-    res.status(201).json({ message: 'Subscribed' });
-  } catch (err) {
-    console.error('Push subscribe error:', err);
-    res.status(500).json({ message: 'Failed to subscribe' });
-  }
-});
+  await pool.query(
+    `INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth)
+     VALUES (?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE p256dh = VALUES(p256dh), auth = VALUES(auth)`,
+    [req.userId, endpoint, p256dh, authKey],
+  );
+  res.status(201).json({ message: 'Subscribed' });
+}));
 
-router.delete('/api/push/subscribe', auth, async (req, res) => {
+router.delete('/api/push/subscribe', auth, asyncHandler(async (req, res) => {
   const { endpoint } = req.body;
-  try {
-    await pool.query(
-      'DELETE FROM push_subscriptions WHERE user_id = ? AND endpoint = ?',
-      [req.userId, endpoint || ''],
-    );
-    res.json({ message: 'Unsubscribed' });
-  } catch (err) {
-    console.error('Push unsubscribe error:', err);
-    res.status(500).json({ message: 'Failed to unsubscribe' });
-  }
-});
+  await pool.query(
+    'DELETE FROM push_subscriptions WHERE user_id = ? AND endpoint = ?',
+    [req.userId, endpoint || ''],
+  );
+  res.json({ message: 'Unsubscribed' });
+}));
 
 export async function sendPushToUser(userId, title, body, url = '/') {
   if (!vapidPublic || !vapidPrivate) {

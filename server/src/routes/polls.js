@@ -1,11 +1,10 @@
 import { Router } from 'express';
 const router = Router();
 import pool from '../db.js';
-import { auth } from '../middleware.js';
+import { auth, asyncHandler } from '../middleware.js';
 
 // List polls
-router.get('/', auth, async (req, res) => {
-  try {
+router.get('/', auth, asyncHandler(async (req, res) => {
     const [rows] = await pool.query(
       `SELECT p.*,
         (SELECT COUNT(*) FROM poll_options WHERE poll_id = p.id) options_count,
@@ -16,11 +15,10 @@ router.get('/', auth, async (req, res) => {
     );
     const parsed = rows.map(r => ({ ...r, my_votes: r.my_votes ? JSON.parse(r.my_votes) : [] }));
     res.json(parsed);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Create poll
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, asyncHandler(async (req, res) => {
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
@@ -41,13 +39,12 @@ router.post('/', auth, async (req, res) => {
     res.status(201).json({ ...poll[0], options: opts, total_votes: 0, my_votes: [] });
   } catch (err) {
     await conn.rollback();
-    res.status(500).json({ error: err.message });
+    throw err;
   } finally { conn.release(); }
-});
+}));
 
 // Get poll detail
-router.get('/:id', auth, async (req, res) => {
-  try {
+router.get('/:id', auth, asyncHandler(async (req, res) => {
     const [p] = await pool.query(`SELECT * FROM polls WHERE id = ?`, [req.params.id]);
     if (!p.length) return res.status(404).json({ error: 'Not found' });
     const [opts] = await pool.query(
@@ -59,11 +56,10 @@ router.get('/:id', auth, async (req, res) => {
     );
     const totalVotes = opts.reduce((s, o) => s + o.votes, 0);
     res.json({ ...p[0], options: opts, total_votes: totalVotes });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 // Vote
-router.post('/:id/vote', auth, async (req, res) => {
+router.post('/:id/vote', auth, asyncHandler(async (req, res) => {
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
@@ -116,16 +112,14 @@ router.post('/:id/vote', auth, async (req, res) => {
     res.json({ ...poll[0], options: opts, total_votes: totalVotes });
   } catch (err) {
     await conn.rollback();
-    res.status(500).json({ error: err.message });
+    throw err;
   } finally { conn.release(); }
-});
+}));
 
 // Delete poll
-router.delete('/:id', auth, async (req, res) => {
-  try {
+router.delete('/:id', auth, asyncHandler(async (req, res) => {
     await pool.query(`DELETE FROM polls WHERE id = ?`, [req.params.id]);
     res.json({ ok: true });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+}));
 
 export default router;
