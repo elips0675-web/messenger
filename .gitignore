@@ -25,3 +25,4 @@ assets/
 *.sw?
 server/.env
 server.log
+data/
