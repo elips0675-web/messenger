@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/messenger-app/',
+  base: process.env.BASE_URL || '/messenger-app/',
   server: {
     port: 3000,
     proxy: {
