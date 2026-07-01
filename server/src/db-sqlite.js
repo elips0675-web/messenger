@@ -555,9 +555,9 @@ INSERT OR IGNORE INTO users (id, name, email, password, role, title, avatar, dep
   (6, 'Анна Соколова', 'dev2@company.ru', '$2a$10$3QS.NNK1AT/ek1XTPXAWaes0RJR.jPAncvnEI78cy8bhIdPYnQpP2', 'user', 'Junior Developer', 'AS', 2, 1);
 INSERT OR IGNORE INTO chats (id, name, type) VALUES (1, 'IT-отдел', 'group'), (2, 'HR-отдел', 'group'), (3, 'Общий чат', 'group');
 INSERT OR IGNORE INTO chat_members (chat_id, user_id, last_read_at) VALUES
-  (1,1,'now'),(1,2,'now'),(1,3,'now'),(1,5,'now'),(1,6,'now'),
-  (2,1,'now'),(2,4,'now'),
-  (3,1,'now'),(3,2,'now'),(3,3,'now'),(3,4,'now'),(3,5,'now'),(3,6,'now');
+  (1,1,'2026-07-01T10:00:00'),(1,2,'2026-07-01T10:00:00'),(1,3,'2026-07-01T10:00:00'),(1,5,'2026-07-01T10:00:00'),(1,6,'2026-07-01T10:00:00'),
+  (2,1,'2026-07-01T10:00:00'),(2,4,'2026-07-01T10:00:00'),
+  (3,1,'2026-07-01T10:00:00'),(3,2,'2026-07-01T10:00:00'),(3,3,'2026-07-01T10:00:00'),(3,4,'2026-07-01T10:00:00'),(3,5,'2026-07-01T10:00:00'),(3,6,'2026-07-01T10:00:00');
 INSERT OR IGNORE INTO messages (chat_id, user_id, text, created_at) VALUES
   (1,2,'Привет, коллеги! Новая версия готова к деплою', '2026-07-01T08:00:00'),
   (1,3,'Отлично, заливаю на прод', '2026-07-01T08:05:00'),
