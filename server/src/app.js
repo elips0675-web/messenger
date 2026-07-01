@@ -6,9 +6,10 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { auth, adminAuth, asyncHandler } from './middleware.js';
+import { auth, optionalAuth, adminAuth, asyncHandler } from './middleware.js';
 import { createLogger, rootLogger } from './logger.js';
 import pool from './db.js';
+
 
 import authRoutes from './routes/auth.js';
 import chatRoutes from './routes/chats.js';
@@ -31,6 +32,9 @@ import wikiRoutes from './routes/wiki.js';
 import workflowRoutes from './routes/workflows.js';
 import courseRoutes from './routes/courses.js';
 import pollRoutes from './routes/polls.js';
+import telegramRoutes from './routes/telegram.js';
+import ticketRoutes from './routes/tickets.js';
+import telegramRoutes from './routes/telegram.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -82,13 +86,16 @@ app.use('/api/wiki', wikiRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/polls', pollRoutes);
+app.use('/api/telegram', telegramRoutes);
 
 app.use('/api/admin', adminAuth, adminRoutes);
+
+app.use('/tickets', express.static(path.join(__dirname, '../public')));
 
 app.use((err, req, res, next) => {
   const log = req.log || rootLogger;
   log.error('Unhandled error', err);
-  res.status(500).json({ message: 'Internal server error' });
+  res.status(500).json({ message: err?.message || 'Internal server error' });
 });
 
 export default app;

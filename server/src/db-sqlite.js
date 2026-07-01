@@ -511,6 +511,41 @@ CREATE TABLE IF NOT EXISTS course_progress (
   UNIQUE(course_id, user_id)
 );
 
+CREATE TABLE IF NOT EXISTS telegram_bot (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  token TEXT NOT NULL UNIQUE,
+  webhook_url TEXT,
+  active INTEGER DEFAULT 1,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS tickets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  subject TEXT NOT NULL,
+  description TEXT,
+  status TEXT DEFAULT 'open',
+  priority TEXT DEFAULT 'medium',
+  channel TEXT DEFAULT 'telegram',
+  telegram_chat_id TEXT,
+  assigned_to INTEGER,
+  created_by INTEGER,
+  created_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (assigned_to) REFERENCES users(id),
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS ticket_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ticket_id INTEGER NOT NULL,
+  user_id INTEGER,
+  text TEXT NOT NULL,
+  channel TEXT DEFAULT 'telegram',
+  is_internal INTEGER DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
 CREATE TABLE IF NOT EXISTS polls (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
@@ -635,6 +670,9 @@ if (isNew) {
   db.exec(`CREATE INDEX IF NOT EXISTS idx_workflow_requests_req ON workflow_requests(requester_id);`);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_workflow_approvals_req ON workflow_approvals(request_id);`);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_course_progress_cu ON course_progress(course_id, user_id);`);
+db.exec(`CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);`);
+db.exec(`CREATE INDEX IF NOT EXISTS idx_tickets_telegram ON tickets(telegram_chat_id);`);
+db.exec(`CREATE INDEX IF NOT EXISTS idx_ticket_messages_ticket ON ticket_messages(ticket_id, created_at);`);
 }
 
 export default pool;
