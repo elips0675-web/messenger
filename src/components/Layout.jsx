@@ -35,6 +35,7 @@ export default function Layout({ children, title, onBack, showBack }) {
     { path: '/audit', icon: icons.admin, label: 'Аудит' },
     { path: '/retention', icon: icons.timeline, label: 'Хранение' },
     { path: '/search', icon: icons.search || '🔍', label: 'Поиск' },
+    { path: '/tickets', icon: '🎫', label: 'Тикеты' },
     { path: '/bots', icon: icons.bot || '🤖', label: 'Боты' },
     { path: '/webhooks', icon: icons.webhook || icons.chats, label: 'Вебхуки' },
     { path: '/faq', icon: '❓', label: 'FAQ' },

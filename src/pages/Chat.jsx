@@ -9,15 +9,16 @@ import { api } from '../lib/api';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useCall } from '../hooks/useCall';
 import { parseCommand } from '../lib/commands';
-import { users as mockUsers } from '../data/mockData';
-
 const FILE_ICONS = { img: '🖼️', pdf: '📄', doc: '📝', code: '💻', default: '📁' };
+
+let msgIdCounter = Date.now();
 
 export default function Chat() {
   const { id } = useParams();
   const navigate = useNavigate();
   const msgEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const currentId = useRef(id);
   const [chat, setChat] = useState(null);
   const [msgs, setMsgs] = useState([]);
   const [input, setInput] = useState('');
@@ -40,18 +41,21 @@ export default function Chat() {
   const me = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
+    currentId.current = id;
     api.get(`/chats/${id}`).then(data => {
+      if (currentId.current !== id) return;
       setChat(data);
       setMsgs(data.messages || []);
-      localStorage.setItem('chats_data', JSON.stringify([data]));
+      if (data.members) setUsers(data.members);
     }).catch(() => {
+      if (currentId.current !== id) return;
       import('../data/mockData').then(m => {
         const c = m.chats.find(x => x.id === Number(id));
         if (c) { setChat(c); setMsgs(c.messages || []); }
       });
     });
-    api.get('/corporate/users').then(setUsers).catch(() => setUsers(mockUsers));
     api.put(`/chats/${id}/read`).catch(() => {});
+    return () => { currentId.current = null; };
   }, [id]);
 
   useEffect(() => {
@@ -159,7 +163,7 @@ export default function Chat() {
 
   const addMsg = (text, extra = {}) => {
     const newMsg = {
-      id: Date.now(), user_id: me.id || 1, userId: me.id || 1, text: String(text || '').trim(),
+      id: ++msgIdCounter, user_id: me.id || 1, userId: me.id || 1, text: String(text || '').trim(),
       time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
       reactions: {}, readBy: [], edited: false,
       ...extra,
@@ -321,6 +325,7 @@ export default function Chat() {
           )}
 
           <div className="msg-area">
+            {filteredMsgs.length === 0 && !search && <div style={{ textAlign: 'center', padding: 40, color: 'var(--text2)' }}>Нет сообщений. Напишите что-нибудь!</div>}
             {filteredMsgs.length === 0 && search && <div style={{ textAlign: 'center', padding: 40, color: 'var(--text2)' }}>Ничего не найдено</div>}
             {filteredMsgs.map(msg => (
               <ChatBubble key={msg.id} message={msg} isMine={(msg.userId || msg.user_id) === (me.id || 1)} onReact={handleReact} onEdit={handleEdit} onDelete={handleDelete}

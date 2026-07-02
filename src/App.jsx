@@ -41,6 +41,7 @@ const Courses = lazy(() => import('./pages/Courses'));
 const CourseDetail = lazy(() => import('./pages/CourseDetail'));
 const FAQ = lazy(() => import('./pages/FAQ'));
 const Polls = lazy(() => import('./pages/Polls'));
+const Tickets = lazy(() => import('./pages/Tickets'));
 
 function Loading() {
   return <div style={{ padding: 40, textAlign: 'center', color: 'var(--text2)' }}>Загрузка...</div>;
@@ -90,6 +91,7 @@ export default function App() {
         <Route path="/courses/:id" element={<CourseDetail />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/polls" element={<Polls />} />
+        <Route path="/tickets" element={<Tickets />} />
         <Route path="/bots" element={<BotsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
