@@ -34,7 +34,6 @@ import courseRoutes from './routes/courses.js';
 import pollRoutes from './routes/polls.js';
 import telegramRoutes from './routes/telegram.js';
 import ticketRoutes from './routes/tickets.js';
-import telegramRoutes from './routes/telegram.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -43,8 +42,27 @@ const app = express();
 const limiter = rateLimit({ windowMs: 60_000, max: 200, message: { message: 'Too many requests' } });
 const authLimiter = rateLimit({ windowMs: 60_000, max: 20, message: { message: 'Too many auth attempts' } });
 
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
-app.use(helmet({ contentSecurityPolicy: false }));
+const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').filter(Boolean);
+app.use(cors({
+  origin: allowedOrigins.length
+    ? allowedOrigins
+    : (origin, cb) => cb(null, origin),
+  credentials: true,
+}));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.telegram.org"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+    },
+  },
+}));
 
 app.use((req, res, next) => {
   req.rid = req.headers['x-request-id'] || crypto.randomUUID();
@@ -65,7 +83,8 @@ app.use('/api/auth', authRoutes);
 app.use(['/api/push', '/api/chats', '/api/tasks', '/api/projects', '/api/files',
   '/api/notifications', '/api/calendar', '/api/channels', '/api/kanban',
   '/api/gantt', '/api/timeline', '/api/mindmap', '/api/search', '/api/corporate',
-  '/api/feed', '/api/wiki', '/api/workflows', '/api/courses', '/api/polls'], auth);
+  '/api/feed', '/api/wiki', '/api/workflows', '/api/courses', '/api/polls',
+  '/api/tickets'], auth);
 
 app.use('/api', pushRoutes);
 app.use('/api/chats', chatRoutes);
@@ -86,6 +105,7 @@ app.use('/api/wiki', wikiRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/polls', pollRoutes);
+app.use('/api/tickets', ticketRoutes);
 app.use('/api/telegram', telegramRoutes);
 
 app.use('/api/admin', adminAuth, adminRoutes);
@@ -95,7 +115,9 @@ app.use('/tickets', express.static(path.join(__dirname, '../public')));
 app.use((err, req, res, next) => {
   const log = req.log || rootLogger;
   log.error('Unhandled error', err);
-  res.status(500).json({ message: err?.message || 'Internal server error' });
+  res.status(500).json({
+    message: process.env.NODE_ENV === 'production' ? 'Internal server error' : err?.message || 'Internal server error',
+  });
 });
 
 export default app;

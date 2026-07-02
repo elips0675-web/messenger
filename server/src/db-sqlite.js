@@ -525,13 +525,14 @@ CREATE TABLE IF NOT EXISTS tickets (
   description TEXT,
   status TEXT DEFAULT 'open',
   priority TEXT DEFAULT 'medium',
-  channel TEXT DEFAULT 'telegram',
+  channel TEXT DEFAULT 'web',
   telegram_chat_id TEXT,
-  assigned_to INTEGER,
-  created_by INTEGER,
+  requester_id INTEGER,
+  assignee_id INTEGER,
   created_at TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (assigned_to) REFERENCES users(id),
-  FOREIGN KEY (created_by) REFERENCES users(id)
+  updated_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (requester_id) REFERENCES users(id),
+  FOREIGN KEY (assignee_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS ticket_messages (
